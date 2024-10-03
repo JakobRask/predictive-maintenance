@@ -53,11 +53,11 @@ class CSVReader:
 
 
 file_urls = [
-    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/PdM_errors.csv",
-    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/PdM_failures.csv",
-    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/PdM_machines.csv",
-    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/PdM_maint.csv",
-    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/PdM_telemetry.csv"
+    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/raw/PdM_errors.csv",
+    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/raw/PdM_failures.csv",
+    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/raw/PdM_machines.csv",
+    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/raw/PdM_maint.csv",
+    "https://raw.githubusercontent.com/JakobRask/predictive-maintenance/main/data/raw/PdM_telemetry.csv"
 ]
 
 csv_reader = CSVReader(file_urls, 'csv_reader_log.log')
