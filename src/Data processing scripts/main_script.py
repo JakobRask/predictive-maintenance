@@ -23,7 +23,7 @@ sql_manager = SQLManager('SQLManagerLogger', 'sql_manager_log.log')
 
 engine = sql_manager.new_engine(
     dialect='mssql',  
-    server='NovaNexus',  
+    server='MSI',  
     database='predictive_maintenance_db',  
     integrated_security=True  
 )
