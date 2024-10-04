@@ -106,7 +106,7 @@ class SQLManager:
             self.logger.error(f'There was an error in fetching data: {e}')
             raise
 
-    def transfer_data(self, df, table_name):
+    def transfer_data(self, df, table_name, dtype=None):
         """
         Transfers a pandas dataframe to the connected database table.
 
@@ -125,10 +125,10 @@ class SQLManager:
             inspector = inspect(self.engine)
             if table_name in inspector.get_table_names():
                 self.logger.info(f'Table "{table_name}" exists. Appending data.')
-                df.to_sql(table_name, con=self.engine, if_exists='append', index=False)
+                df.to_sql(table_name, con=self.engine, if_exists='append', index=False, dtype=dtype)
             else:
                 self.logger.info(f'Table "{table_name}" does not exist. Creating a new table.')
-                df.to_sql(table_name, con=self.engine, if_exists='append', index=False)
+                df.to_sql(table_name, con=self.engine, if_exists='append', index=False, dtype=dtype)
         except Exception as e:
             self.logger.error(f'Error transferring data to table named "{table_name}": {e}')
             raise
