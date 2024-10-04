@@ -13,6 +13,13 @@
     </li>
     <li><strong>Can we accurately forecast machine failures before they occur using telemetry data and error logs?</strong> 
         <p>By analyzing sensor anomalies and their relation to failures, we will evaluate our model's capability to provide early warnings of machine breakdowns, which will be essential for scheduling timely maintenance.</p>
+   
+   measures to prevent failure based on a scheduled 
+APP using streamlit that says:
+1. "Your machine is likely to produce X error leading to Y failure due to high torque speed or vibration levels on this date w/ 95% confidence level". 
+2. "The predicted failure date is Y date". "Change by A date for 85%, B date for 90%, C date for 95%".
+3. "Carry out maintenance/service at latest by X date".
+4. "The amount saved by carrying out service is $$". 
     </li>
 </ol>
 
