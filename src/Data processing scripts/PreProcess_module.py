@@ -7,7 +7,7 @@ class PreProcessor:
     A class to perform data preprocessing and cleaning on DataFrames.
     """
     
-    def __init__(self, df, logger_name='data_preprocesser_logger', log_file='data_preprocessor.log'):
+    def __init__(self, df, logger_name='data_preprocesser_logger', log_file='data_preprocessor_log.log'):
         """
         Initializes the DataCleaner with a DataFrame and sets up a log to track data transformations.
 
@@ -52,7 +52,7 @@ class PreProcessor:
                     if pd.api.types.is_datetime64_any_dtype(self.df['datetime']):
                         
                         self.df['date'] = self.df['datetime'].dt.date
-                        self.df['time'] = self.df['datetime'].dt.strftime('%H:%M')
+                        self.df['time'] = self.df['datetime'].dt.time('%H:%M')
                         self.df.drop(columns=['datetime'], inplace=True)
                         
                         self.logger.info(f"Split 'datetime' column into 'date' and 'time'")

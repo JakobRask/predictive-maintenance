@@ -5,6 +5,7 @@ from SQL_module import SQLManager
 from CSV_module import CSVReader  
 from PreProcess_module import PreProcessor
 from Logging_module import LoggerSetup  
+from sqlalchemy.types import SmallInteger, String, Date, Time
 
 
 
@@ -22,7 +23,7 @@ sql_manager = SQLManager('SQLManagerLogger', 'sql_manager_log.log')
 
 engine = sql_manager.new_engine(
     dialect='mssql',  
-    server='NovaNexus',  
+    server='MSI',  
     database='predictive_maintenance_db',  
     integrated_security=True  
 )
@@ -38,7 +39,12 @@ for key, df in dataframes.items():
     cleaned_df = preprocessor.clean_data()
 
    
-    sql_manager.transfer_data(cleaned_df, table_name=key)
+    sql_manager.transfer_data(cleaned_df, table_name=key, dtype={
+    'machineID': SmallInteger(),
+    'errorID': String(),
+    'date': Date(),
+    'time': Time()  
+    })
 
 
     print(f"Successfully transferred the data from '{key}' to the SQL database.")
