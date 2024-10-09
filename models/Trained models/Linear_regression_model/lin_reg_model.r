@@ -114,22 +114,62 @@ merged_data <- merged_data %>%
   ungroup()
 
 str(merged_data)
+View(merged_data)
 
-# Fit a linear regression model predicting failure
-linear_model <- lm(time_until_next_failure ~ volt + rotate + pressure_rolling_avg + vibration + error_count_24h + # nolint
-                time_since_last_failure + time_since_last_error + model + age, # nolint
-                data = merged_data) # nolint
+# Train/validation/test splits
+# First we set the cutoff dates for the splits
+train_cutoff <- as.Date("2015-09-30")       # Training data ends on 30 September 2015 #nolint
+validation_cutoff <- as.Date("2015-11-30")  # Validation data ends on 30 November 2015 #nolint
+
+# Next we split the data into train, validation, and test sets
+train_data <- merged_data[merged_data$datetime <= train_cutoff, ]
+validation_data <- merged_data[merged_data$datetime > train_cutoff & merged_data$datetime <= validation_cutoff, ] #nolint
+test_data <- merged_data[merged_data$datetime > validation_cutoff, ]
+
+# Then we fit the linear regression model on the training set using pressure as the target variable  #nolint
+linear_model <- lm(pressure ~ volt + rotate + pressure_rolling_avg + vibration + error_count_24h +  #nolint
+                   time_since_last_failure + time_since_last_error + model + age,  #nolint
+                   data = train_data)
+
 summary(linear_model)
-# Model fit is very low with a multiple R-squared value of 0.009621, meaning that only about 0.96% of the variability in time_until_next_failure is explained by the model. # nolint
-# Several predictors including volt, rotate, pressure_rolling_avg and vibration are statistically significant, but the model explains very little variance in the dependent variable (time_until_next_failure). # nolint
+
+# Then we validate the model 
+validation_predictions <- predict(linear_model, newdata = validation_data)
+
+# After validation, we use the test set for final evaluation  #nolint
+test_predictions <- predict(linear_model, newdata = test_data)
+
+# Finally, we evaluate model performance on the validation and test data
+validation_residuals <- validation_data$pressure - validation_predictions
+test_residuals <- test_data$pressure - test_predictions
+
+validation_mse <- mean(validation_residuals^2)
+test_mse <- mean(test_residuals^2)
+
+print(paste("Validation MSE:", validation_mse))
+print(paste("Test MSE:", test_mse))
 
 
-# We need better interactive features to improve the model so we will carry out subset selection to evaluate various subsets of our predictors to identify those that yield the best model. # nolint
-install.packages("leaps")
-library(leaps)
-subset_model <- regsubsets(time_until_next_failure ~ volt + rotate + pressure + vibration, data = merged_data, nvmax = 4) # nolint
-summary(subset_model)
-plot(subset_model, scale = "adjr2")
+
+# # Fit a linear regression model predicting failure
+# linear_model <- lm(time_until_next_failure ~ volt + rotate + pressure_rolling_avg + vibration + error_count_24h + # nolint
+#                 time_since_last_failure + time_since_last_error + model + age, # nolint
+#                 data = merged_data) # nolint
+# summary(linear_model)
+# # Model fit is very low with a multiple R-squared value of 0.009621, meaning that only about 0.96% of the variability in time_until_next_failure is explained by the model. # nolint
+# # Several predictors including volt, rotate, pressure_rolling_avg and vibration are statistically significant, but the model explains very little variance in the dependent variable (time_until_next_failure). # nolint
+
+# linear_model <- lm(time_until_next_failure ~ volt + rotate + pressure_rolling_avg + vibration + error_count_24h + # nolint
+#                 time_since_last_failure + time_since_last_error + model + age, # nolint
+#                 data = merged_data) # nolint
+# summary(linear_model)
+
+# # We need better interactive features to improve the model so we will carry out subset selection to evaluate various subsets of our predictors to identify those that yield the best model. # nolint
+# install.packages("leaps")
+# library(leaps)
+# subset_model <- regsubsets(time_until_next_failure ~ volt + rotate + pressure + vibration, data = merged_data, nvmax = 4) # nolint
+# summary(subset_model)
+# plot(subset_model, scale = "adjr2")
 # Best model: The subset model suggests that a combination of volt and rotate are the best fit. # nolint
 
 # Given the poor fit of the linear regression model, we would normally look for better predictors and more complex feature interactions, but instead I used a subset # nolint
