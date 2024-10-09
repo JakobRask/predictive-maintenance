@@ -52,7 +52,7 @@ class PreProcessor:
                     if pd.api.types.is_datetime64_any_dtype(self.df['datetime']):
                         
                         self.df['date'] = self.df['datetime'].dt.date
-                        self.df['time'] = self.df['datetime'].dt.time('%H:%M')
+                        self.df['time'] = self.df['datetime'].dt.strftime('%H:%M')
                         self.df.drop(columns=['datetime'], inplace=True)
                         
                         self.logger.info(f"Split 'datetime' column into 'date' and 'time'")
