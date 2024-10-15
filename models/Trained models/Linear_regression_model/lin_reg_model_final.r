@@ -112,6 +112,78 @@ str(merged_data)
 View(merged_data %>% slice(1:50))
 write.csv(merged_data %>% slice(1:50), "C:/Users/rshaw/Desktop/EC Utbildning - Data Science/Kurs 9 - Project/Project/ds23_projektkurs/predictive-maintenance/models/Trained models/merged_data_w_eng_feat.csv", row.names = FALSE) #nolint
 
+#EDA
+# Step 1: Ensure datetime is in POSIXct format in both datasets
+merged_data$datetime <- ymd_hms(merged_data$datetime)
+maintenance$datetime <- ymd_hms(maintenance$datetime)
+
+# Step 2: Summarize anomalies by machineID (already working code)
+anomaly_summary <- merged_data %>%
+  group_by(machineID) %>%
+  summarize(
+    pressure_anomalies = sum(pressure_anomaly == 1, na.rm = TRUE),
+    volt_anomalies = sum(volt_anomaly == 1, na.rm = TRUE),
+    vibration_anomalies = sum(vibration_anomaly == 1, na.rm = TRUE),
+    rotate_anomalies = sum(rotate_anomaly == 1, na.rm = TRUE)
+  )
+
+View(anomaly_summary)
+
+# Step 3: Join anomaly summary with machine metadata 
+merged_anomalies <- anomaly_summary %>%
+  left_join(machines, by = "machineID")
+
+View(merged_anomalies)
+write.csv(merged_anomalies, "C:/Users/rshaw/Desktop/EC Utbildning - Data Science/Kurs 9 - Project/Project/ds23_projektkurs/predictive-maintenance/models/Trained models/merged_anomalies.csv", row.names = FALSE) #nolint
+
+# A. Summary statistics for anomalies and machine age
+install.packages("summarytools")
+library(summarytools)
+dfSummary(merged_anomalies)
+
+# B. Group the data by machine model and calculate mean anomalies
+anomalies_by_model <- merged_anomalies %>%
+  group_by(model) %>%
+  summarise(
+    avg_pressure_anomalies = mean(pressure_anomalies, na.rm = TRUE),
+    avg_volt_anomalies = mean(volt_anomalies, na.rm = TRUE),
+    avg_vibration_anomalies = mean(vibration_anomalies, na.rm = TRUE),
+    avg_rotate_anomalies = mean(rotate_anomalies, na.rm = TRUE),
+    avg_age = mean(age, na.rm = TRUE)
+  )
+print(anomalies_by_model)
+View(anomalies_by_model)
+write.csv(anomalies_by_model, "C:/Users/rshaw/Desktop/EC Utbildning - Data Science/Kurs 9 - Project/Project/ds23_projektkurs/predictive-maintenance/models/Trained models/anomalies_by_model.csv", row.names = FALSE) #nolint
+
+# C. Compute correlation between anomalies and machine age
+correlation_matrix <- merged_anomalies %>%
+  select(pressure_anomalies, volt_anomalies, vibration_anomalies, rotate_anomalies, age) %>% #nolint
+  cor(use = "complete.obs")
+print(correlation_matrix)
+View(correlation_matrix)
+write.csv(correlation_matrix, "C:/Users/rshaw/Desktop/EC Utbildning - Data Science/Kurs 9 - Project/Project/ds23_projektkurs/predictive-maintenance/models/Trained models/anomalies_and_machine_age.csv", row.names = FALSE) #nolint
+
+# 1. Anomaly Distribution Across Machines:
+# Machines with high voltage anomalies are likely to have corresponding pressure issues. # nolint
+# The range (difference between min and max) shows that some machines have significantly more anomalies (up to 384) than others (as few as 308), indicating variability in the anomaly count across machines.
+
+# 2. Anomalies by Machine Model:
+# Model 1 has the highest average pressure anomalies (358.8), which stands out compared to other models, 
+# e.g., Model 4, which has 342.4 on average). This indicates that Model 1 might be more susceptible to pressure-related issues 
+# and will likely require more frequent maintenace.
+
+# 3. Anomalies and Machine Age: 
+# Older machines are slightly more prone to pressure anomalies, but age does not seem to have a strong relationship with # nolint
+# other types of anomalies (voltage, vibration and rotation). The correlation between machine age and pressure anomalies is +0.22, 
+# which is a weak but positive correlation. This means that, generally, as machine age increases, the likelihood of pressure anomalies also increases.
+
+# Plot machine age vs pressure anomalies
+ggplot(merged_anomalies, aes(x = age, y = pressure_anomalies)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Relationship Between Machine Age and Pressure Anomalies",
+       x = "Machine Age (years)", y = "Pressure Anomalies")
+
 # Train/validation/test splits
 # First we set the cutoff dates for the splits
 train_cutoff <- as.Date("2015-09-30")       # Training data ends on 30 September 2015 #nolint
@@ -120,6 +192,8 @@ validation_cutoff <- as.Date("2015-11-30")  # Validation data ends on 30 Novembe
 train_data <- merged_data[merged_data$datetime <= train_cutoff, ]
 validation_data <- merged_data[merged_data$datetime > train_cutoff & merged_data$datetime <= validation_cutoff, ] #nolint
 test_data <- merged_data[merged_data$datetime > validation_cutoff, ]
+
+#create comp 3 pressure variable as target variable instead of pressure
 
 linear_model <- lm(pressure ~ volt + rotate + pressure_rolling_avg + vibration + error_count_24h + #nolint
                    time_since_last_failure + time_since_last_error + model + age + #nolint
