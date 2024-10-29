@@ -4,10 +4,9 @@ import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
-# import LSTM????
 
 # load model and test sequences for RUL predictions
-model_rul = tf.keras.models.load_model('../../best_rul_model_.keras')       # load RUL model
+model_rul = tf.keras.models.load_model(r'C:\Users\rshaw\Desktop\EC Utbildning - Data Science\Kurs 9 - Project\Project\ds23_projektkurs\predictive-maintenance\src\best_rul_model_.keras')       # load RUL model
 test_seq_rul_1 = np.load("../../data/X_test_seq_rul_1.npy", allow_pickle=True)
 test_seq_rul_2 = np.load("../../data/X_test_seq_rul_2.npy", allow_pickle=True)
 test_seq_rul_3 = np.load("../../data/X_test_seq_rul_3.npy", allow_pickle=True)
