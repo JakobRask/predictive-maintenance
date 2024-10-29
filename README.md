@@ -8,7 +8,10 @@
 
 <h2>Key Questions We Aim to Solve</h2>
 <ol>
-    <li><strong>1.	Can an LSTM model accurately predict the Remaining Useful Life (RUL) of machines?
-2.	How effective is the model in predicting future telemetry data (volt, rotate, pressure, vibration) using past telemetry sequences?By comparing the forecasted readings with historical failures, we aim to identify patterns that precede breakdowns.</p>
+    <li><strong>Can an LSTM model accurately predict the Remaining Useful Life (RUL) of machines?</strong></li>
+    <li><strong>How effective is the model in predicting future telemetry data (volt, rotate, pressure, vibration) using past telemetry sequences?</strong>
+<p>By comparing the forecasted readings with historical failures, we aim to identify patterns that precede breakdowns.</p>
     </li>
+</ol>
+
     
