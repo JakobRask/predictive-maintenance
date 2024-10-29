@@ -6,7 +6,8 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 # import LSTM????
-
+C:\Users\rshaw\Desktop\EC Utbildning - Data Science\Kurs 9 - Project\Project\ds23_projektkurs\predictive-maintenance\models\Trained models\best_rul_model_.keras
+C:\Users\rshaw\Desktop\EC Utbildning - Data Science\Kurs 9 - Project\Project\ds23_projektkurs\predictive-maintenance\models\stream_app.py
 # load model and test sequences for RUL predictions
 model_rul = tf.keras.models.load_model('../../best_rul_model_.keras')       # load RUL model
 test_seq_rul_1 = np.load("../../data/X_test_seq_rul_1.npy", allow_pickle=True)
