@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 model_rul = tf.keras.models.load_model('models\Trained models\Robs_preloaded_lstm_model\model_20241027_212326_lstm.keras') 
 #model_rul = tf.keras.models.load_model('../best_rul_model_.keras')     
 
-test_seq_rul = np.load("data\Robs_seq_files\X_test_seq.npy", allow_pickle=True)
-test_label_rul = np.load("data\Robs_seq_files\y_test_seq.npy", allow_pickle=True)
+test_seq_rul = np.load("data\X_test_seq_rob.npy", allow_pickle=True)
+test_label_rul = np.load("data\y_test_seq_rob.npy", allow_pickle=True)
 
 # test_seq_rul_1 = np.load("../data/X_test_seq_rul_1.npy", allow_pickle=True)
 # test_seq_rul_2 = np.load("../data/X_test_seq_rul_2.npy", allow_pickle=True)
