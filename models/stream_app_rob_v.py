@@ -7,24 +7,24 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 # load model and test sequences for RUL predictions
-model_rul = tf.keras.models.load_model('models\Trained models\Robs_preloaded_lstm_model\model_20241027_212326_lstm.keras') 
-#model_rul = tf.keras.models.load_model('../best_rul_model_.keras')     
+#model_rul = tf.keras.models.load_model('models/Trained models/Robs_preloaded_lstm_model/model_20241027_212326_lstm.keras')
+model_rul = tf.keras.models.load_model('best_rul_model_.keras')     
 
-test_seq_rul = np.load("data\X_test_seq_rob.npy", allow_pickle=True)
-test_label_rul = np.load("data\y_test_seq_rob.npy", allow_pickle=True)
+# test_seq_rul = np.load("data/X_test_seq_rob.npy", allow_pickle=True)
+# test_label_rul = np.load("data/y_test_seq_rob.npy", allow_pickle=True)
+test_seq_rul_1 = np.load("data/X_test_seq_rul_1.npy", allow_pickle=True)
+test_seq_rul_2 = np.load("data/X_test_seq_rul_2.npy", allow_pickle=True)
+test_seq_rul_3 = np.load("data/X_test_seq_rul_3.npy", allow_pickle=True)
+test_seq_rul_4 = np.load("data/X_test_seq_rul_4.npy", allow_pickle=True)
+test_seq_rul_5 = np.load("data/X_test_seq_rul_5.npy", allow_pickle=True)
+test_seq_rul = np.vstack((test_seq_rul_1, test_seq_rul_2, test_seq_rul_3, test_seq_rul_4, test_seq_rul_5))
+test_label_rul = np.load("data/y_test_rul_seq.npy", allow_pickle=True)
 
-# test_seq_rul_1 = np.load("../data/X_test_seq_rul_1.npy", allow_pickle=True)
-# test_seq_rul_2 = np.load("../data/X_test_seq_rul_2.npy", allow_pickle=True)
-# test_seq_rul_3 = np.load("../data/X_test_seq_rul_3.npy", allow_pickle=True)
-# test_seq_rul_4 = np.load("../data/X_test_seq_rul_4.npy", allow_pickle=True)
-# test_seq_rul_5 = np.load("../data/X_test_seq_rul_5.npy", allow_pickle=True)
-# test_seq_rul = np.vstack((test_seq_rul_1, test_seq_rul_2, test_seq_rul_3, test_seq_rul_4, test_seq_rul_5))
-# test_label_rul = np.load("../data/y_test_rul_seq.npy", allow_pickle=True)
-# load model and test sequences for telemetry predictions
-model_tele = tf.keras.models.load_model('Trained models/GRU_model.keras')     # load telemetry model
-test_seq_tele = np.load("../data/test_seq_tele.npy", allow_pickle=True)      # Need to create file for test data sequence
+#load model and test sequences for telemetry predictions
+model_tele = tf.keras.models.load_model('models/Trained models/GRU_model.keras')
+test_seq_tele = np.load("data/test_seq_tele.npy", allow_pickle=True)
 test_seq_tele = tf.convert_to_tensor(test_seq_tele, dtype=tf.float32)
-test_label_tele = np.load("../data/test_label_tele.npy", allow_pickle=True)
+test_label_tele = np.load("data/test_label_tele.npy", allow_pickle=True)
 
 st.set_page_config(layout="wide")
 
