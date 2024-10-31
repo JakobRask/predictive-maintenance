@@ -21,7 +21,7 @@ test_label_rul = np.load("data\y_test_seq_rob.npy", allow_pickle=True)
 # test_seq_rul = np.vstack((test_seq_rul_1, test_seq_rul_2, test_seq_rul_3, test_seq_rul_4, test_seq_rul_5))
 # test_label_rul = np.load("../data/y_test_rul_seq.npy", allow_pickle=True)
 # load model and test sequences for telemetry predictions
-model_tele = tf.keras.models.load_model('Trained models/GRU_model.keras')     # load telemetry model
+model_tele = tf.keras.models.load_model('models/Trained models/GRU_model.keras')     # load telemetry model
 test_seq_tele = np.load("../data/test_seq_tele.npy", allow_pickle=True)      # Need to create file for test data sequence
 test_seq_tele = tf.convert_to_tensor(test_seq_tele, dtype=tf.float32)
 test_label_tele = np.load("../data/test_label_tele.npy", allow_pickle=True)
