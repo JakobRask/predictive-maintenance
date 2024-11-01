@@ -9,8 +9,8 @@ class TestPreProcessor(unittest.TestCase):
         Set up test data by reading in required CSV files using CSVReader.
         """
         
-        folder_path = r"C:\Users\rshaw\Desktop\EC Utbildning - Data Science\Kurs 9 - Project\Project\ds23_projektkurs\predictive-maintenance\data\raw"
-
+        folder_path = r"C:\Users\Hanss\Documents\Data Science Project\predictive-maintenance\data\raw"
+        
         
         csv_reader = CSVReader(folder_path=folder_path)
         self.dataframes = csv_reader.read_files_from_folder()

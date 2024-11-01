@@ -5,7 +5,7 @@ from SQL_module import SQLManager
 from CSV_module import CSVReader  
 from PreProcess_module import PreProcessor
 from Logging_module import LoggerSetup  
-from sqlalchemy.types import SmallInteger, String, Date, Time
+from sqlalchemy.types import SmallInteger, String, Date, Time # type: ignore
 
 
 
