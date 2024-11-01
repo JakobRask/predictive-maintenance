@@ -1,5 +1,0 @@
-SELECT TOP (1000) [datetime]
-      ,[machineID]
-      ,[errorID]
-      ,[date]
-  FROM [predictive_maintenance_db].[dbo].[PdM_errors]
