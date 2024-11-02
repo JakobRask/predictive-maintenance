@@ -1,7 +1,13 @@
+from dotenv import load_dotenv
+import os
 import unittest
 import pandas as pd
 from PreProcess_module import PreProcessor
 from CSV_module import CSVReader  
+
+# Load environment variables from the .env file
+load_dotenv()
+
 class TestPreProcessor(unittest.TestCase):
 
     def setUp(self):
@@ -9,13 +15,15 @@ class TestPreProcessor(unittest.TestCase):
         Set up test data by reading in required CSV files using CSVReader.
         """
         
-        folder_path = r"C:\Users\Hanss\Documents\Data Science Project\predictive-maintenance\data\raw"
+        # Fetch the folder path from the DATA_PATH environment variable
+        data_path = os.getenv("DATA_PATH")
         
+        # Access subfolders and files using the base paths
+        raw_data_path = os.path.join(data_path, "raw")       
         
-        csv_reader = CSVReader(folder_path=folder_path)
+        csv_reader = CSVReader(folder_path=data_path)
         self.dataframes = csv_reader.read_files_from_folder()
 
-        
         # Initialize PreProcessor with the real dataframes
         self.preprocessor = PreProcessor(self.dataframes)
 

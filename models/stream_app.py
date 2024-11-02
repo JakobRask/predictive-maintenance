@@ -1,31 +1,38 @@
-
 import streamlit as st
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
-# import LSTM????
-
 import os
-print(os.path.exists('../best_rul_model_.keras'))  # should print True if the path is correct
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
 
-# load model and test sequences for RUL predictions
-model_rul = tf.keras.models.load_model('../../best_rul_model_.keras')       # load RUL model
-test_seq_rul_1 = np.load("../../data/X_test_seq_rul_1.npy", allow_pickle=True)
-test_seq_rul_2 = np.load("../../data/X_test_seq_rul_2.npy", allow_pickle=True)
-test_seq_rul_3 = np.load("../../data/X_test_seq_rul_3.npy", allow_pickle=True)
-test_seq_rul_4 = np.load("../../data/X_test_seq_rul_4.npy", allow_pickle=True)
-test_seq_rul_5 = np.load("../../data/X_test_seq_rul_5.npy", allow_pickle=True)
+# Fetch base paths from the environment variables
+data_path = os.getenv("DATA_PATH")
+model_path = os.getenv("MODEL_PATH")
+
+# Check if paths exist (for debugging)
+print("Data path exists:", os.path.exists(data_path))
+print("Model path exists:", os.path.exists(model_path))
+
+# Load model and test sequences for RUL predictions
+model_rul = tf.keras.models.load_model(os.path.join(model_path, "best_rul_model_.keras"))  # load RUL model
+test_seq_rul_1 = np.load(os.path.join(data_path, "X_test_seq_rul_1.npy"), allow_pickle=True)
+test_seq_rul_2 = np.load(os.path.join(data_path, "X_test_seq_rul_2.npy"), allow_pickle=True)
+test_seq_rul_3 = np.load(os.path.join(data_path, "X_test_seq_rul_3.npy"), allow_pickle=True)
+test_seq_rul_4 = np.load(os.path.join(data_path, "X_test_seq_rul_4.npy"), allow_pickle=True)
+test_seq_rul_5 = np.load(os.path.join(data_path, "X_test_seq_rul_5.npy"), allow_pickle=True)
 test_seq_rul = np.vstack((test_seq_rul_1, test_seq_rul_2, test_seq_rul_3, test_seq_rul_4, test_seq_rul_5))
-test_label_rul = np.load("../../data/y_test_rul_seq.npy", allow_pickle=True)
+test_label_rul = np.load(os.path.join(data_path, "y_test_rul_seq.npy"), allow_pickle=True)
 
-# load model and test sequences for telemetry predictions
-model_tele = tf.keras.models.load_model('../../models/Trained models/GRU_model.keras')     # load telemetry model
-test_seq_tele = np.load("../../data/test_seq_tele.npy", allow_pickle=True)      # Need to create file for test data sequence
+# Load model and test sequences for telemetry predictions
+model_tele = tf.keras.models.load_model(os.path.join(model_path, "Trained models", "GRU_model.keras"))  # load telemetry model
+test_seq_tele = np.load(os.path.join(data_path, "test_seq_tele.npy"), allow_pickle=True)  # Load test data sequence
 test_seq_tele = tf.convert_to_tensor(test_seq_tele, dtype=tf.float32)
-test_label_tele = np.load("../../data/test_label_tele.npy", allow_pickle=True)
+test_label_tele = np.load(os.path.join(data_path, "test_label_tele.npy"), allow_pickle=True)
 
 st.set_page_config(layout="wide")
 
