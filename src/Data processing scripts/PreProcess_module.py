@@ -84,56 +84,41 @@ class PreProcessor:
         return df
 
     def _one_hot_encode(self):
-        """
-        Performs one-hot encoding for failures, errors, and maintenance on the respective DataFrames.
-        """
-        # One-hot encode failures
         df_failures = self.dataframes.get('df_failures')
         if df_failures is not None and not df_failures.empty and 'failure' in df_failures.columns:
-            df_fail = pd.get_dummies(df_failures, columns=['failure'], dtype=int, prefix='fail').groupby(['datetime', 'machineid']).sum().reset_index()
+            df_fail = pd.get_dummies(df_failures, columns=['failure'], dtype=int, prefix='fail').groupby(['datetime', 'machineID']).sum().reset_index()
             df_fail['failure_indicator'] = 1
             self.dataframes['df_failures'] = df_fail
             self.logger.info("One-hot encoding complete for failures.")
         else:
             self.logger.warning("Failures DataFrame is missing or does not contain the 'failure' column.")
 
-        # One-hot encode errors
         df_errors = self.dataframes.get('df_errors')
-        if df_errors is not None and not df_errors.empty and 'errorid' in df_errors.columns:
-            df_error = pd.get_dummies(df_errors, columns=['errorid'], dtype=int, prefix='').groupby(['datetime', 'machineid']).sum().reset_index()
+        if df_errors is not None and not df_errors.empty and 'errorID' in df_errors.columns:
+            df_error = pd.get_dummies(df_errors, columns=['errorID'], dtype=int, prefix='').groupby(['datetime', 'machineID']).sum().reset_index()
             df_error['error_indicator'] = 1
             self.dataframes['df_errors'] = df_error
             self.logger.info("One-hot encoding complete for errors.")
         else:
             self.logger.warning("Errors DataFrame is missing or does not contain the 'errorid' column.")
 
-        # One-hot encode maintenance
-        df_maintenance = self.dataframes.get('df_maintenance')
-        if df_maintenance is not None and not df_maintenance.empty and 'comp' in df_maintenance.columns:
-            df_main = pd.get_dummies(df_maintenance, columns=['comp'], dtype=int, prefix='maint').groupby(['datetime', 'machineid']).sum().reset_index()
+        df_maint = self.dataframes.get('df_maint')
+        if df_maint is not None and not df_maint.empty and 'comp' in df_maint.columns:
+            df_main = pd.get_dummies(df_maint, columns=['comp'], dtype=int, prefix='maint').groupby(['datetime', 'machineID']).sum().reset_index()
             df_main['maint_indicator'] = 1
-            self.dataframes['df_maintenance'] = df_main
+            self.dataframes['df_maint'] = df_main
             self.logger.info("One-hot encoding complete for maintenance.")
         else:
             self.logger.warning("Maintenance DataFrame is missing or does not contain the 'comp' column.")
 
-
-
     def _merge_data(self):
-        """
-        Merges all relevant DataFrames into a single DataFrame.
-
-        Returns:
-            DataFrame: The merged DataFrame.
-        """
         try:
             df_telemetry = self.dataframes.get('df_telemetry')
             df_failures = self.dataframes.get('df_failures')
             df_errors = self.dataframes.get('df_errors')
-            df_maintenance = self.dataframes.get('df_maintenance')
+            df_maint = self.dataframes.get('df_maint')
             df_machines = self.dataframes.get('df_machines')
 
-            # Check for NoneType DataFrames
             if df_telemetry is None:
                 self.logger.error("Telemetry DataFrame is missing.")
                 raise ValueError("Telemetry DataFrame is missing.")
@@ -141,46 +126,45 @@ class PreProcessor:
                 self.logger.warning("Failures DataFrame is missing. Proceeding without failures.")
             if df_errors is None:
                 self.logger.warning("Errors DataFrame is missing. Proceeding without errors.")
-            if df_maintenance is None:
+            if df_maint is None:
                 self.logger.warning("Maintenance DataFrame is missing. Proceeding without maintenance.")
             if df_machines is None:
                 self.logger.error("Machines DataFrame is missing.")
                 raise ValueError("Machines DataFrame is missing.")
 
-            # Merge telemetry with failure data
             df_merged = df_telemetry.copy()
             if df_failures is not None:
                 df_merged = pd.merge(
                     df_merged,
-                    df_failures[['machineid', 'datetime', 'fail_comp1', 'fail_comp2', 'fail_comp3', 'fail_comp4', 'failure_indicator']],
-                    on=['machineid', 'datetime'],
+                    df_failures[['machineID', 'datetime', 'fail_comp1', 'fail_comp2', 'fail_comp3', 'fail_comp4', 'failure_indicator']],
+                    on=['machineID', 'datetime'],
                     how='left'
                 )
                 df_merged.fillna({'failure_indicator': 0, 'fail_comp1': 0, 'fail_comp2': 0, 'fail_comp3': 0, 'fail_comp4': 0}, inplace=True)
+                df_merged[['failure_indicator', 'fail_comp1', 'fail_comp2', 'fail_comp3', 'fail_comp4']] = df_merged[
+                    ['failure_indicator', 'fail_comp1', 'fail_comp2', 'fail_comp3', 'fail_comp4']
+                ].astype(int)
 
-            # Merge with error data
             if df_errors is not None:
                 df_merged = pd.merge(
                     df_merged,
-                    df_errors[['machineid', 'datetime', '_error1', '_error2', '_error3', '_error4', '_error5', 'error_indicator']],
-                    on=['machineid', 'datetime'],
+                    df_errors[['machineID', 'datetime', '_error1', '_error2', '_error3', '_error4', '_error5', 'error_indicator']],
+                    on=['machineID', 'datetime'],
                     how='left'
                 )
                 df_merged.fillna({'error_indicator': 0, '_error1': 0, '_error2': 0, '_error3': 0, '_error4': 0, '_error5': 0}, inplace=True)
 
-            # Merge with maintenance data (if available)
-            if df_maintenance is not None:
+            if df_maint is not None:
                 df_merged = pd.merge(
                     df_merged,
-                    df_maintenance[['machineid', 'datetime', 'maint_comp1', 'maint_comp2', 'maint_comp3', 'maint_comp4', 'maint_indicator']],
-                    on=['machineid', 'datetime'],
+                    df_maint[['machineID', 'datetime', 'maint_comp1', 'maint_comp2', 'maint_comp3', 'maint_comp4', 'maint_indicator']],
+                    on=['machineID', 'datetime'],
                     how='left'
                 )
                 df_merged.fillna({'maint_indicator': 0, 'maint_comp1': 0, 'maint_comp2': 0, 'maint_comp3': 0, 'maint_comp4': 0}, inplace=True)
 
-            # Add machine details
-            df_machines = pd.get_dummies(df_machines, columns=['model'], dtype=int, prefix='').groupby(['machineid']).sum().reset_index()
-            df_merged = pd.merge(df_merged, df_machines, on=['machineid'], how='left')
+            df_machines = pd.get_dummies(df_machines, columns=['model'], dtype=int, prefix='').groupby(['machineID']).sum().reset_index()
+            df_merged = pd.merge(df_merged, df_machines, on=['machineID'], how='left')
 
             self.logger.info("Data merging complete.")
             return df_merged
@@ -190,34 +174,53 @@ class PreProcessor:
             raise
 
 
-
-
-
     def _feature_engineering(self, df):
         """
-        Performs feature engineering including calculations for time_since_last_error, time_since_last_maint, and RUL.
+        Performs comprehensive feature engineering including calculations for 
+        time_since_last_error, time_since_last_maint, RUL, and NaN handling.
 
         Args:
-            df (DataFrame): The merged DataFrame.
+            df (DataFrame): The merged DataFrame with telemetry, failure, error, and maintenance info.
 
         Returns:
             DataFrame: The DataFrame with additional engineered features.
         """
         try:
-            # Calculate time since last error
-            df['datetime_error'] = df['datetime'].where(df['error_indicator'] == 1)
-            df['datetime_error'] = df.groupby('machineid')['datetime_error'].bfill()
-            df['time_since_last_error'] = (df['datetime_error'] - df['datetime']).dt.total_seconds() / 3600
+            # Ensure 'datetime' column is in correct datetime format
+            if 'datetime' in df.columns:
+                df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
 
-            # Calculate time since last maintenance
-            df['datetime_maint'] = df['datetime'].where(df['maint_indicator'] == 1)
-            df['datetime_maint'] = df.groupby('machineid')['datetime_maint'].bfill()
-            df['time_since_last_maint'] = (df['datetime_maint'] - df['datetime']).dt.total_seconds() / 3600
+           
+            # Calculate datetime of last error and time since last error
+            if 'error_indicator' in df.columns:
+                df['datetime_error'] = df['datetime'].where(df['error_indicator'] == 1)
+                df['datetime_error'] = df.groupby('machineID')['datetime_error'].bfill()
+                df['time_since_last_error'] = (df['datetime_error'] - df['datetime']).dt.total_seconds() / 3600
+                
 
-            # Calculate Remaining Useful Life (RUL)
-            df['datetime_failure'] = df['datetime'].where(df['failure_indicator'] == 1)
-            df['datetime_failure'] = df.groupby('machineid')['datetime_failure'].bfill()
-            df['RUL'] = (df['datetime_failure'] - df['datetime']).dt.total_seconds() / 3600
+            # Calculate datetime of last maintenance and time since last maintenance
+            if 'maint_indicator' in df.columns:
+                df['datetime_maint'] = df['datetime'].where(df['maint_indicator'] == 1)
+                df['datetime_maint'] = df.groupby('machineID')['datetime_maint'].bfill()
+                df['time_since_last_maint'] = (df['datetime_maint'] - df['datetime']).dt.total_seconds() / 3600
+               
+
+            # Calculate datetime of next failure and Remaining Useful Life (RUL)
+            if 'failure_indicator' in df.columns:
+                df['datetime_failure'] = df['datetime'].where(df['failure_indicator'] == 1)
+                df['datetime_failure'] = df.groupby('machineID')['datetime_failure'].bfill()
+                df['RUL'] = (df['datetime_failure'] - df['datetime']).dt.total_seconds() / 3600
+               
+
+            # Fill NaNs in RUL, time_since_last_error, and time_since_last_maint using averages and countdowns
+            self._fill_nan_with_countdown(df, 'RUL', 'failure_indicator', 'datetime_failure', 'RUL')
+            self._fill_nan_with_countdown(df, 'time_since_last_error', 'error_indicator', 'datetime_error', 'time_since_last_error')
+            self._fill_nan_with_countdown(df, 'time_since_last_maint', 'maint_indicator', 'datetime_maint', 'time_since_last_maint')
+
+            # Handle machine-specific RUL adjustments for similar machines (e.g., machine 77 and 6 analogues)
+            machine_df = self.dataframes.get('df_machines')  # Retrieve machine_df directly from self.dataframes
+            if machine_df is not None:
+                self._apply_rul_adjustments(df, machine_df)
 
             self.logger.info("Feature engineering complete.")
             return df
@@ -225,6 +228,75 @@ class PreProcessor:
         except Exception as e:
             self.logger.error(f"An error occurred during feature engineering: {e}")
             raise
+
+
+    def _fill_nan_with_countdown(self, df, column, indicator, datetime_column, fallback_column):
+        """
+        Fills NaN values for a specified column by applying average countdowns.
+
+        Args:
+            df (DataFrame): The main DataFrame.
+            column (str): Column to fill.
+            indicator (str): Indicator column (e.g., failure_indicator).
+            datetime_column (str): Related datetime column.
+            fallback_column (str): Fallback column to compute averages from.
+        """
+        column_means = df.groupby('machineID')[fallback_column].mean().to_dict()
+
+        for machine_id, mean_value in column_means.items():
+            machine_data = df[df['machineID'] == machine_id].copy()
+            last_index = machine_data[machine_data[indicator] == 1].index.max()
+
+            if pd.isna(last_index):  # No known events
+                initial_value = mean_value
+                nan_indices = machine_data.index
+            else:  # Events found, start countdown after last event
+                initial_value = mean_value
+                nan_indices = machine_data.loc[last_index + 1:, column].index
+
+            for idx in nan_indices:
+                df.loc[idx, column] = max(initial_value, 0)
+                initial_value -= 1
+                if initial_value < 0:
+                    initial_value = mean_value
+
+    def _apply_rul_adjustments(self, df, machine_df):
+        """
+        Applies average RUL adjustments based on similar machines for specific cases.
+
+        Args:
+            df (DataFrame): The main DataFrame.
+            machine_df (DataFrame): The machine information DataFrame.
+        """
+        # Similar machines for machineID 77 (model 4, age 10-15)
+        model4_machines = machine_df[(machine_df['model'] == 'model4') & (machine_df['age'].between(10, 15))]
+        model4_rul_mean = df[df['machineID'].isin(model4_machines['machineID'])]['RUL'].dropna().mean()
+        self._apply_machine_rul(df, 77, model4_rul_mean)
+
+        # Similar machines for machineID 6 (model 3, age 7)
+        model3_machines = machine_df[(machine_df['model'] == 'model3') & (machine_df['age'] == 7)]
+        model3_rul_mean = df[df['machineID'].isin(model3_machines['machineID'])]['RUL'].dropna().mean()
+        self._apply_machine_rul(df, 6, model3_rul_mean)
+
+    def _apply_machine_rul(self, df, machine_id, mean_rul):
+        """
+        Applies average RUL countdown for a specific machine.
+
+        Args:
+            df (DataFrame): The main DataFrame.
+            machine_id (int): Machine ID to adjust RUL.
+            mean_rul (float): The mean RUL to use for countdown.
+        """
+        machine_data = df[df['machineID'] == machine_id].copy()
+        initial_value = mean_rul
+        nan_indices = machine_data[machine_data['RUL'].isna()].index
+
+        for idx in nan_indices:
+            df.loc[idx, 'RUL'] = max(initial_value, 0)
+            initial_value -= 1
+            if initial_value < 0:
+                initial_value = mean_rul
+
 
     def _clean_and_split_datetime(self, df):
         """
@@ -237,10 +309,11 @@ class PreProcessor:
             DataFrame: The DataFrame with 'datetime' split into 'date' and 'time'.
         """
         if 'datetime' in df.columns:
-            df['date'] = df['datetime'].dt.date
+            # Set 'date' as datetime without the time component
+            df['date'] = pd.to_datetime(df['datetime']).dt.normalize()
             df['time'] = df['datetime'].dt.strftime('%H:%M')
             df = df.drop(columns=['datetime'])
-            self.logger.info("Split 'datetime' column into 'date' and 'time")
+            self.logger.info("Split 'datetime' column into 'date' and 'time'")
         return df
 
     def preprocess(self):
