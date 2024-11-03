@@ -101,7 +101,7 @@ class CSVReader:
         elif 'machines' in base_name:
             dataframes['df_machines'] = df
         elif 'maint' in base_name:
-            dataframes['df_maintenance'] = df
+            dataframes['df_maint'] = df
         elif 'telemetry' in base_name:
             dataframes['df_telemetry'] = df
         else:
